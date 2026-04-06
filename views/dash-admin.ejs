@@ -1,0 +1,3062 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+ <meta charset="UTF-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+ <title>Nexus Command - <%= storeName %></title>
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+ <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.0/axios.min.js"></script>
+ <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+ <style>
+   :root {
+     --bg-primary: #0a0a0f;
+     --bg-secondary: #12121a;
+     --bg-tertiary: #1a1a25;
+     --glass-bg: rgba(26, 26, 37, 0.6);
+     --glass-border: rgba(255, 255, 255, 0.08);
+     --accent-primary: #6366f1;
+     --accent-secondary: #8b5cf6;
+     --accent-cyan: #06b6d4;
+     --success: #10b981;
+     --warning: #f59e0b;
+     --danger: #ef4444;
+     --text-primary: #f8fafc;
+     --text-secondary: #94a3b8;
+     --text-muted: #64748b;
+     --font-main: 'Plus Jakarta Sans', sans-serif;
+     --font-mono: 'JetBrains Mono', monospace;
+     --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.15);
+     --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+   }
+
+   * { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+   
+   body {
+     background: var(--bg-primary);
+     color: var(--text-primary);
+     font-family: var(--font-main);
+     min-height: 100vh;
+     line-height: 1.6;
+     background-image: 
+       radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+       radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
+       radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 50%);
+     background-attachment: fixed;
+   }
+
+   ::-webkit-scrollbar { width: 6px; height: 6px; }
+   ::-webkit-scrollbar-track { background: var(--bg-primary); }
+   ::-webkit-scrollbar-thumb { background: var(--bg-tertiary); border-radius: 3px; }
+   ::-webkit-scrollbar-thumb:hover { background: var(--accent-primary); }
+
+   .container { 
+     max-width: 1600px; 
+     margin: 0 auto; 
+     padding: 0 16px; 
+     width: 100%;
+   }
+   
+   .glass-panel {
+     background: var(--glass-bg);
+     backdrop-filter: blur(12px);
+     -webkit-backdrop-filter: blur(12px);
+     border: 1px solid var(--glass-border);
+     box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255,255,255,0.05);
+   }
+   
+   .glass-card {
+     background: linear-gradient(135deg, rgba(26,26,37,0.8) 0%, rgba(18,18,26,0.9) 100%);
+     backdrop-filter: blur(20px);
+     border: 1px solid rgba(255,255,255,0.06);
+     border-radius: 16px;
+     box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+   }
+
+   header { 
+     position: fixed; 
+     top: 16px; 
+     left: 0; 
+     right: 0; 
+     z-index: 1000; 
+     padding: 0 16px;
+   }
+   
+   .nav-container {
+     background: rgba(10, 10, 15, 0.9);
+     backdrop-filter: blur(20px);
+     border: 1px solid rgba(255,255,255,0.08);
+     border-radius: 12px;
+     padding: 12px 16px;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+     margin: 0 auto;
+     max-width: 1400px;
+   }
+   
+   .brand { 
+     font-size: 1.1rem; 
+     font-weight: 800; 
+     color: white; 
+     display: flex; 
+     align-items: center; 
+     gap: 8px; 
+     text-decoration: none;
+     letter-spacing: -0.02em;
+   }
+   .brand-icon {
+     width: 32px;
+     height: 32px;
+     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+     border-radius: 8px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 1rem;
+     box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+     flex-shrink: 0;
+   }
+   
+   .nav-actions { display: flex; gap: 8px; align-items: center; }
+   
+   .btn-icon {
+     width: 36px;
+     height: 36px;
+     border-radius: 8px;
+     border: 1px solid rgba(255,255,255,0.1);
+     background: rgba(255,255,255,0.05);
+     color: var(--text-secondary);
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     cursor: pointer;
+     transition: all 0.2s;
+     text-decoration: none;
+     flex-shrink: 0;
+   }
+   .btn-icon:hover {
+     background: rgba(239, 68, 68, 0.1);
+     color: var(--danger);
+     border-color: rgba(239, 68, 68, 0.3);
+     transform: translateY(-1px);
+   }
+
+   .main-content { 
+     padding-top: 88px; 
+     padding-bottom: 32px; 
+     min-height: 100vh;
+   }
+
+   .stats-grid { 
+     display: grid; 
+     grid-template-columns: repeat(2, 1fr); 
+     gap: 12px; 
+     margin-bottom: 24px; 
+   }
+   
+   .stat-card { 
+     padding: 16px; 
+     border-radius: 12px; 
+     position: relative; 
+     overflow: hidden;
+     transition: transform 0.2s, box-shadow 0.2s;
+   }
+   .stat-card:hover {
+     transform: translateY(-2px);
+     box-shadow: var(--shadow-glow);
+   }
+   
+   .stat-card::before {
+     content: '';
+     position: absolute;
+     top: 0;
+     left: 0;
+     right: 0;
+     height: 2px;
+     background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+     opacity: 0.5;
+   }
+   
+   .stat-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 8px;
+   }
+   .stat-icon {
+     width: 36px;
+     height: 36px;
+     border-radius: 8px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 1rem;
+     background: rgba(255,255,255,0.03);
+     border: 1px solid rgba(255,255,255,0.05);
+   }
+   .stat-icon.blue { color: var(--accent-primary); background: rgba(99,102,241,0.1); border-color: rgba(99,102,241,0.2); }
+   .stat-icon.green { color: var(--success); background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.2); }
+   .stat-icon.yellow { color: var(--warning); background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.2); }
+   .stat-icon.red { color: var(--danger); background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.2); }
+   
+   .stat-val { 
+     font-size: 1.5rem; 
+     font-weight: 800; 
+     font-family: var(--font-mono); 
+     letter-spacing: -0.02em;
+     line-height: 1;
+   }
+   .stat-label { 
+     font-size: 0.8125rem; 
+     color: var(--text-muted); 
+     font-weight: 500;
+     margin-top: 4px;
+   }
+   .stat-trend {
+     font-size: 0.7rem;
+     color: var(--text-muted);
+     margin-top: 2px;
+     font-family: var(--font-mono);
+   }
+
+   .dashboard-grid { 
+     display: flex; 
+     flex-direction: column;
+     gap: 20px; 
+   }
+
+   .sidebar-col { 
+     display: flex; 
+     flex-direction: column; 
+     gap: 20px; 
+   }
+   
+   .panel-card { 
+     border-radius: 14px; 
+     padding: 20px;
+     transition: transform 0.2s;
+   }
+   .panel-card:hover {
+     transform: translateY(-1px);
+   }
+   
+   .card-head { 
+     font-size: 0.8125rem; 
+     font-weight: 700; 
+     color: var(--text-primary); 
+     margin-bottom: 16px; 
+     display: flex; 
+     align-items: center; 
+     gap: 8px; 
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+   }
+   .card-head-icon {
+     width: 30px;
+     height: 30px;
+     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+     border-radius: 6px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 0.8125rem;
+     color: white;
+     flex-shrink: 0;
+   }
+   
+   .package-selector {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 8px;
+     margin-bottom: 16px;
+   }
+   
+   .package-option {
+     background: rgba(0,0,0,0.3);
+     border: 1px solid rgba(255,255,255,0.1);
+     border-radius: 8px;
+     padding: 10px 8px;
+     text-align: center;
+     cursor: pointer;
+     transition: all 0.2s;
+     position: relative;
+     overflow: hidden;
+   }
+   
+   .package-option:hover {
+     background: rgba(99,102,241,0.1);
+     border-color: var(--accent-primary);
+   }
+   
+   .package-option.selected {
+     background: rgba(99,102,241,0.2);
+     border-color: var(--accent-primary);
+     box-shadow: 0 0 15px rgba(99,102,241,0.3);
+   }
+   
+   .package-option.selected::after {
+     content: '✓';
+     position: absolute;
+     top: 4px;
+     right: 6px;
+     color: var(--success);
+     font-weight: bold;
+     font-size: 0.7rem;
+   }
+   
+   .package-name {
+     font-size: 0.7rem;
+     font-weight: 700;
+     color: var(--text-primary);
+     margin-bottom: 2px;
+   }
+   
+   .package-specs {
+     font-size: 0.6rem;
+     color: var(--text-secondary);
+     font-family: var(--font-mono);
+   }
+   
+   .package-price {
+     font-size: 0.6rem;
+     color: var(--accent-cyan);
+     font-weight: 700;
+     margin-top: 4px;
+   }
+   
+   .input-group { margin-bottom: 12px; }
+   .input-label { 
+     display: block; 
+     font-size: 0.6875rem; 
+     color: var(--text-muted); 
+     margin-bottom: 4px; 
+     font-weight: 600; 
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+   }
+   .input-field { 
+     width: 100%; 
+     background: rgba(0,0,0,0.3); 
+     border: 1px solid rgba(255,255,255,0.1); 
+     color: var(--text-primary); 
+     padding: 10px 12px; 
+     border-radius: 8px; 
+     font-family: var(--font-mono); 
+     font-size: 0.8125rem;
+     transition: all 0.2s;
+     min-height: 42px;
+   }
+   .input-field:hover { border-color: rgba(255,255,255,0.2); }
+   .input-field:focus { 
+     border-color: var(--accent-primary); 
+     background: rgba(0,0,0,0.4);
+     box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+   }
+   
+   .input-grid { 
+     display: grid; 
+     grid-template-columns: 1fr; 
+     gap: 12px; 
+   }
+   
+   .btn-submit { 
+     width: 100%; 
+     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); 
+     color: white; 
+     border: none; 
+     padding: 12px; 
+     border-radius: 8px; 
+     font-weight: 700; 
+     cursor: pointer; 
+     font-size: 0.8125rem; 
+     display: flex; 
+     justify-content: center; 
+     gap: 6px; 
+     align-items: center;
+     transition: all 0.2s;
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     box-shadow: 0 4px 15px rgba(99,102,241,0.3);
+     min-height: 44px;
+     margin-top: 8px;
+   }
+   .btn-submit:hover {
+     transform: translateY(-2px);
+     box-shadow: 0 6px 25px rgba(99,102,241,0.4);
+   }
+   .btn-submit:active { transform: translateY(0); }
+   
+   .btn-secondary {
+     background: transparent;
+     border: 1px solid rgba(255,255,255,0.2);
+     box-shadow: none;
+   }
+   .btn-secondary:hover {
+     background: rgba(255,255,255,0.05);
+     border-color: rgba(255,255,255,0.3);
+   }
+
+   .main-col { 
+     display: flex; 
+     flex-direction: column; 
+     width: 100%;
+   }
+   
+   .server-panel {
+     border-radius: 16px;
+     padding: 20px;
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+     max-height: 700px;
+   }
+   
+   .panel-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 20px;
+     padding-bottom: 16px;
+     border-bottom: 1px solid rgba(255,255,255,0.06);
+     flex-wrap: wrap;
+     gap: 12px;
+   }
+   .panel-title {
+     font-size: 1rem;
+     font-weight: 700;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+   }
+   .panel-badge {
+     background: rgba(99,102,241,0.15);
+     color: var(--accent-primary);
+     padding: 4px 10px;
+     border-radius: 20px;
+     font-size: 0.7rem;
+     font-weight: 700;
+     font-family: var(--font-mono);
+     border: 1px solid rgba(99,102,241,0.2);
+     flex-shrink: 0;
+   }
+   
+   .tabs-container {
+     display: flex;
+     gap: 8px;
+     margin-bottom: 20px;
+     border-bottom: 1px solid rgba(255,255,255,0.06);
+     padding-bottom: 8px;
+     overflow-x: auto;
+     flex-shrink: 0;
+   }
+   
+   .tab-btn {
+     padding: 8px 16px;
+     background: transparent;
+     border: none;
+     color: var(--text-secondary);
+     font-size: 0.75rem;
+     font-weight: 600;
+     cursor: pointer;
+     border-radius: 8px;
+     transition: all 0.2s;
+     white-space: nowrap;
+     display: flex;
+     align-items: center;
+     gap: 6px;
+   }
+   
+   .tab-btn:hover {
+     background: rgba(255,255,255,0.05);
+     color: var(--text-primary);
+   }
+   
+   .tab-btn.active {
+     background: rgba(99,102,241,0.2);
+     color: var(--accent-primary);
+     box-shadow: 0 0 10px rgba(99,102,241,0.2);
+   }
+   
+   .tab-content {
+     display: none;
+     overflow-y: auto;
+     overflow-x: hidden;
+     flex: 1;
+     min-height: 0;
+   }
+   
+   .tab-content.active {
+     display: block;
+   }
+   
+   .server-list { 
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 16px;
+     padding-right: 4px;
+   }
+   
+   @media (min-width: 768px) {
+     .server-list {
+       grid-template-columns: repeat(2, 1fr);
+     }
+   }
+   
+   @media (min-width: 1280px) {
+     .server-list {
+       grid-template-columns: repeat(2, 1fr);
+     }
+   }
+   
+   .server-list::-webkit-scrollbar {
+     width: 4px;
+   }
+   
+   .server-list::-webkit-scrollbar-track {
+     background: var(--bg-primary);
+   }
+   
+   .server-list::-webkit-scrollbar-thumb {
+     background: var(--bg-tertiary);
+     border-radius: 2px;
+   }
+   
+   .panel-details-grid {
+     display: grid;
+     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+     gap: 16px;
+     margin-top: 16px;
+   }
+   
+   .detail-card {
+     background: rgba(255,255,255,0.02);
+     border: 1px solid rgba(255,255,255,0.06);
+     border-radius: 12px;
+     padding: 16px;
+     transition: all 0.2s;
+   }
+   
+   .detail-card:hover {
+     background: rgba(255,255,255,0.04);
+     border-color: rgba(255,255,255,0.1);
+     transform: translateY(-2px);
+   }
+   
+   .detail-header {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     margin-bottom: 12px;
+     padding-bottom: 8px;
+     border-bottom: 1px solid rgba(255,255,255,0.06);
+   }
+   
+   .detail-icon {
+     width: 28px;
+     height: 28px;
+     background: rgba(99,102,241,0.15);
+     border-radius: 6px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 0.75rem;
+     color: var(--accent-primary);
+   }
+   
+   .detail-title {
+     font-size: 0.8125rem;
+     font-weight: 700;
+     color: var(--text-primary);
+     flex: 1;
+   }
+   
+   .detail-content {
+     font-size: 0.75rem;
+     color: var(--text-secondary);
+     font-family: var(--font-mono);
+   }
+   
+   .detail-row {
+     display: flex;
+     justify-content: space-between;
+     margin-bottom: 6px;
+     padding: 4px 0;
+     border-bottom: 1px dashed rgba(255,255,255,0.05);
+   }
+   
+   .detail-label {
+     color: var(--text-muted);
+   }
+   
+   .detail-value {
+     color: var(--text-primary);
+     font-weight: 500;
+     text-align: right;
+   }
+   
+   .copy-btn {
+     background: rgba(99,102,241,0.1);
+     border: 1px solid rgba(99,102,241,0.2);
+     color: var(--accent-primary);
+     padding: 4px 8px;
+     border-radius: 4px;
+     font-size: 0.6rem;
+     cursor: pointer;
+     transition: all 0.2s;
+     margin-left: 4px;
+   }
+   
+   .copy-btn:hover {
+     background: rgba(99,102,241,0.2);
+   }
+   
+   .status-indicator {
+     display: inline-block;
+     width: 8px;
+     height: 8px;
+     border-radius: 50%;
+     margin-right: 6px;
+   }
+   
+   .status-active { background: var(--success); box-shadow: 0 0 6px var(--success); }
+   .status-suspended { background: var(--warning); box-shadow: 0 0 6px var(--warning); }
+   .status-expired { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
+   
+   .chart-container {
+     background: rgba(0,0,0,0.2);
+     border-radius: 12px;
+     padding: 16px;
+     margin-top: 16px;
+     height: 200px;
+   }
+   
+   .server-item { 
+     padding: 16px; 
+     border-radius: 12px; 
+     border: 1px solid rgba(255,255,255,0.06); 
+     background: rgba(255,255,255,0.02);
+     display: flex; 
+     flex-direction: column;
+     gap: 16px;
+     transition: all 0.2s;
+     position: relative;
+     overflow: hidden;
+   }
+   .server-item:hover {
+     background: rgba(255,255,255,0.04);
+     border-color: rgba(255,255,255,0.1);
+     transform: translateY(-2px);
+   }
+   .server-item::before {
+     content: '';
+     position: absolute;
+     left: 0;
+     top: 0;
+     bottom: 0;
+     width: 3px;
+     transition: width 0.2s;
+   }
+   .server-item.border-green::before { background: var(--success); }
+   .server-item.border-yellow::before { background: var(--warning); }
+   .server-item.border-red::before { background: var(--danger); box-shadow: 0 0 10px rgba(239,68,68,0.5); }
+   
+   .server-content { 
+     flex: 1; 
+     width: 100%;
+   }
+   
+   .srv-header {
+     display: flex;
+     align-items: flex-start;
+     justify-content: space-between;
+     gap: 12px;
+     margin-bottom: 12px;
+     flex-wrap: wrap;
+   }
+   .srv-name { 
+     font-size: 0.9375rem; 
+     font-weight: 700; 
+     color: var(--text-primary);
+     letter-spacing: -0.01em;
+     flex: 1;
+     min-width: 0;
+     word-break: break-word;
+   }
+   
+   .badge { 
+     font-size: 0.6rem; 
+     padding: 3px 8px; 
+     border-radius: 4px; 
+     font-weight: 800; 
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     font-family: var(--font-mono);
+     flex-shrink: 0;
+   }
+   .bg-green { background: rgba(16,185,129,0.15); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+   .bg-yellow { background: rgba(245,158,11,0.15); color: var(--warning); border: 1px solid rgba(245,158,11,0.2); }
+   .bg-red { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid rgba(239,68,68,0.2); }
+   
+   .srv-meta {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 8px;
+     font-size: 0.75rem;
+     color: var(--text-secondary);
+     font-family: var(--font-mono);
+   }
+   .meta-row {
+     display: flex;
+     align-items: center;
+     flex-wrap: wrap;
+     gap: 12px;
+   }
+   .meta-item {
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     flex: 1;
+     min-width: 120px;
+   }
+   .meta-item i { color: var(--text-muted); font-size: 0.75rem; }
+   
+   .spec-pill {
+     background: rgba(255,255,255,0.08);
+     padding: 2px 8px;
+     border-radius: 4px;
+     font-size: 0.7rem;
+     color: var(--accent-cyan);
+     border: 1px solid rgba(6,182,212,0.2);
+     margin-left: auto;
+   }
+   
+   .highlight-days { color: var(--success); font-weight: 600; }
+   .highlight-expired { color: var(--danger); font-weight: 700; }
+   .highlight-warning { color: var(--warning); font-weight: 600; }
+
+   .actions { 
+     display: flex; 
+     gap: 6px;
+     background: rgba(0,0,0,0.3);
+     padding: 6px;
+     border-radius: 10px;
+     border: 1px solid rgba(255,255,255,0.06);
+     width: 100%;
+     flex-wrap: wrap;
+     justify-content: stretch;
+   }
+   .act-btn { 
+     flex: 1;
+     min-width: 44px;
+     height: 38px; 
+     border: none; 
+     background: transparent; 
+     color: var(--text-muted); 
+     border-radius: 8px; 
+     cursor: pointer; 
+     display: flex; 
+     justify-content: center; 
+     align-items: center; 
+     font-size: 0.8125rem;
+     transition: all 0.15s;
+   }
+   .act-btn:hover { 
+     background: rgba(255,255,255,0.1); 
+     color: var(--text-primary);
+     transform: scale(1.05);
+   }
+   .act-btn:active { transform: scale(0.95); }
+   
+   .btn-add:hover { background: rgba(16,185,129,0.15); color: var(--success); }
+   .btn-del:hover { background: rgba(245,158,11,0.15); color: var(--warning); }
+   .btn-lock { color: var(--text-muted); }
+   .btn-lock.locked { 
+     color: var(--danger); 
+     background: rgba(239,68,68,0.15);
+     animation: pulse 2s infinite;
+   }
+   .btn-unlock:hover { background: rgba(16,185,129,0.15); color: var(--success); }
+   .btn-trash:hover { background: rgba(239,68,68,0.15); color: var(--danger); }
+   .btn-view:hover { background: rgba(6,182,212,0.15); color: var(--accent-cyan); }
+   .btn-upgrade:hover { background: rgba(139,92,246,0.15); color: var(--accent-secondary); }
+
+   @keyframes pulse { 
+     0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 
+     50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(239,68,68,0); } 
+   }
+
+   .modal-overlay {
+     position: fixed;
+     top: 0;
+     left: 0;
+     right: 0;
+     bottom: 0;
+     background: rgba(0,0,0,0.8);
+     backdrop-filter: blur(10px);
+     display: none;
+     justify-content: center;
+     align-items: center;
+     z-index: 2000;
+     padding: 20px;
+   }
+   
+   .modal-overlay.active {
+     display: flex;
+   }
+   
+   .modal-container {
+     background: var(--bg-tertiary);
+     border: 1px solid rgba(255,255,255,0.1);
+     border-radius: 16px;
+     width: 100%;
+     max-width: 800px;
+     max-height: 90vh;
+     overflow-y: auto;
+     box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+   }
+   
+   .modal-header {
+     padding: 20px;
+     border-bottom: 1px solid rgba(255,255,255,0.1);
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+   }
+   
+   .modal-title {
+     font-size: 1.1rem;
+     font-weight: 700;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+   }
+   
+   .modal-close {
+     background: transparent;
+     border: none;
+     color: var(--text-secondary);
+     font-size: 1.2rem;
+     cursor: pointer;
+     width: 32px;
+     height: 32px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     border-radius: 8px;
+   }
+   
+   .modal-close:hover {
+     background: rgba(255,255,255,0.1);
+     color: var(--text-primary);
+   }
+   
+   .modal-body {
+     padding: 20px;
+   }
+   
+   .empty-state {
+     text-align: center;
+     padding: 40px 16px;
+     color: var(--text-muted);
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     grid-column: 1 / -1;
+   }
+   .empty-state i {
+     font-size: 2.5rem;
+     margin-bottom: 12px;
+     opacity: 0.3;
+   }
+   .empty-state p {
+     font-size: 0.875rem;
+     font-weight: 500;
+   }
+
+   .toast-container { 
+     position: fixed; 
+     bottom: 20px; 
+     left: 16px; 
+     right: 16px;
+     z-index: 9999; 
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+     max-width: 400px;
+     margin: 0 auto;
+   }
+   .toast { 
+     background: rgba(26,26,37,0.95);
+     backdrop-filter: blur(20px);
+     border: 1px solid rgba(255,255,255,0.1);
+     border-left: 4px solid var(--accent-primary);
+     padding: 14px 16px; 
+     border-radius: 12px; 
+     display: flex; 
+     align-items: center; 
+     gap: 12px; 
+     box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+     width: 100%;
+     transform: translateY(100%);
+     opacity: 0;
+     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+   }
+   .toast.show { 
+     transform: translateY(0); 
+     opacity: 1;
+   }
+   .toast-icon {
+     width: 32px;
+     height: 32px;
+     border-radius: 8px;
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     font-size: 0.875rem;
+     flex-shrink: 0;
+   }
+   .toast.success { border-left-color: var(--success); }
+   .toast.success .toast-icon { background: rgba(16,185,129,0.15); color: var(--success); }
+   .toast.error { border-left-color: var(--danger); }
+   .toast.error .toast-icon { background: rgba(239,68,68,0.15); color: var(--danger); }
+   .toast.info .toast-icon { background: rgba(99,102,241,0.15); color: var(--accent-primary); }
+   
+   .toast-content { flex: 1; min-width: 0; }
+   .toast-title {
+     font-weight: 700;
+     font-size: 0.875rem;
+     margin-bottom: 2px;
+     color: var(--text-primary);
+     white-space: nowrap;
+     overflow: hidden;
+     text-overflow: ellipsis;
+   }
+   .toast-msg {
+     font-size: 0.75rem;
+     color: var(--text-secondary);
+     line-height: 1.4;
+   }
+
+   .settings-grid {
+     display: grid;
+     grid-template-columns: 1fr;
+     gap: 16px;
+     margin-bottom: 16px;
+   }
+   
+   .settings-input-group {
+     margin-bottom: 12px;
+   }
+   
+   .settings-input-label {
+     display: block;
+     font-size: 0.75rem;
+     color: var(--text-muted);
+     margin-bottom: 6px;
+     font-weight: 600;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+   }
+   
+   .settings-input-field {
+     width: 100%;
+     background: rgba(0,0,0,0.4);
+     border: 1px solid rgba(255,255,255,0.1);
+     color: var(--text-primary);
+     padding: 10px 12px;
+     border-radius: 8px;
+     font-family: var(--font-mono);
+     font-size: 0.8rem;
+     transition: all 0.2s;
+   }
+   
+   .settings-input-field:focus {
+     border-color: var(--accent-primary);
+     background: rgba(0,0,0,0.6);
+     box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+   }
+   
+   .settings-toggle {
+     display: flex;
+     align-items: center;
+     justify-content: space-between;
+     padding: 12px;
+     background: rgba(0,0,0,0.3);
+     border: 1px solid rgba(255,255,255,0.08);
+     border-radius: 8px;
+     margin-bottom: 8px;
+   }
+   
+   .toggle-switch {
+     position: relative;
+     display: inline-block;
+     width: 52px;
+     height: 28px;
+   }
+   
+   .toggle-switch input {
+     opacity: 0;
+     width: 0;
+     height: 0;
+   }
+   
+   .toggle-slider {
+     position: absolute;
+     cursor: pointer;
+     top: 0;
+     left: 0;
+     right: 0;
+     bottom: 0;
+     background-color: rgba(255,255,255,0.1);
+     transition: .3s;
+     border-radius: 34px;
+     border: 1px solid rgba(255,255,255,0.1);
+   }
+   
+   .toggle-slider:before {
+     position: absolute;
+     content: "";
+     height: 22px;
+     width: 22px;
+     left: 3px;
+     bottom: 2px;
+     background-color: white;
+     transition: .3s;
+     border-radius: 50%;
+   }
+   
+   input:checked + .toggle-slider {
+     background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+   }
+   
+   input:checked + .toggle-slider:before {
+     transform: translateX(23px);
+   }
+   
+   .price-grid {
+     display: grid;
+     grid-template-columns: repeat(2, 1fr);
+     gap: 8px;
+   }
+   
+   .password-input-group {
+     position: relative;
+     display: flex;
+     gap: 8px;
+   }
+   
+   .password-input-group .input-field {
+     flex: 1;
+   }
+   
+   .btn-generate {
+     background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2));
+     border: 1px solid rgba(99,102,241,0.3);
+     color: var(--accent-primary);
+     padding: 10px 14px;
+     border-radius: 8px;
+     cursor: pointer;
+     font-size: 0.75rem;
+     font-weight: 600;
+     display: flex;
+     align-items: center;
+     gap: 6px;
+     transition: all 0.2s;
+     white-space: nowrap;
+     min-height: 42px;
+   }
+   
+   .btn-generate:hover {
+     background: linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.3));
+     border-color: var(--accent-primary);
+     transform: translateY(-1px);
+     box-shadow: 0 4px 12px rgba(99,102,241,0.2);
+   }
+   
+   .btn-generate:active {
+     transform: translateY(0);
+   }
+   
+   .btn-generate i {
+     font-size: 0.875rem;
+   }
+   
+   .other-products-section {
+     margin-top: 20px;
+   }
+   
+   .other-product-item {
+     background: rgba(255,255,255,0.02);
+     border: 1px solid rgba(255,255,255,0.06);
+     border-radius: 12px;
+     padding: 16px;
+     margin-bottom: 12px;
+     transition: all 0.2s;
+   }
+   
+   .other-product-item:hover {
+     background: rgba(255,255,255,0.04);
+     border-color: rgba(255,255,255,0.1);
+   }
+   
+   .other-product-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     margin-bottom: 12px;
+     flex-wrap: wrap;
+     gap: 12px;
+   }
+   
+   .other-product-name {
+     font-size: 1rem;
+     font-weight: 700;
+     color: var(--text-primary);
+   }
+   
+   .other-product-badge {
+     background: rgba(99,102,241,0.15);
+     color: var(--accent-primary);
+     padding: 4px 12px;
+     border-radius: 20px;
+     font-size: 0.7rem;
+     font-weight: 600;
+   }
+   
+   .other-product-details {
+     display: grid;
+     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+     gap: 8px;
+     margin-bottom: 12px;
+     font-size: 0.75rem;
+     color: var(--text-muted);
+   }
+   
+   .other-product-actions {
+     display: flex;
+     gap: 8px;
+     justify-content: flex-end;
+   }
+   
+   .btn-edit-product {
+     background: rgba(6,182,212,0.1);
+     border: 1px solid rgba(6,182,212,0.2);
+     color: var(--accent-cyan);
+     padding: 6px 12px;
+     border-radius: 6px;
+     cursor: pointer;
+     font-size: 0.7rem;
+     transition: all 0.2s;
+   }
+   
+   .btn-edit-product:hover {
+     background: rgba(6,182,212,0.2);
+     transform: translateY(-1px);
+   }
+   
+   .btn-delete-product {
+     background: rgba(239,68,68,0.1);
+     border: 1px solid rgba(239,68,68,0.2);
+     color: var(--danger);
+     padding: 6px 12px;
+     border-radius: 6px;
+     cursor: pointer;
+     font-size: 0.7rem;
+     transition: all 0.2s;
+   }
+   
+   .btn-delete-product:hover {
+     background: rgba(239,68,68,0.2);
+     transform: translateY(-1px);
+   }
+   
+   .product-form-group {
+     margin-bottom: 16px;
+   }
+   
+   .product-form-label {
+     display: block;
+     font-size: 0.75rem;
+     color: var(--text-muted);
+     margin-bottom: 6px;
+     font-weight: 600;
+     text-transform: uppercase;
+   }
+   
+   .product-form-input {
+     width: 100%;
+     background: rgba(0,0,0,0.4);
+     border: 1px solid rgba(255,255,255,0.1);
+     color: var(--text-primary);
+     padding: 10px 12px;
+     border-radius: 8px;
+     font-size: 0.85rem;
+     transition: all 0.2s;
+   }
+   
+   .product-form-input:focus {
+     border-color: var(--accent-primary);
+     background: rgba(0,0,0,0.6);
+     box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+   }
+   
+   .banner-preview {
+     width: 100%;
+     height: 120px;
+     background-size: cover;
+     background-position: center;
+     border-radius: 8px;
+     margin-top: 8px;
+     border: 1px solid rgba(255,255,255,0.1);
+   }
+   
+   @media (min-width: 640px) {
+     .container { padding: 0 20px; }
+     header { padding: 0 20px; top: 20px; }
+     .nav-container { padding: 12px 20px; }
+     
+     .brand { font-size: 1.25rem; gap: 10px; }
+     .brand-icon { width: 36px; height: 36px; }
+     
+     .main-content { padding-top: 100px; }
+     
+     .stats-grid { 
+       grid-template-columns: repeat(4, 1fr); 
+       gap: 16px;
+       margin-bottom: 32px;
+     }
+     .stat-card { padding: 20px; }
+     .stat-val { font-size: 1.75rem; }
+     .stat-label { font-size: 0.875rem; }
+     
+     .server-item {
+       flex-direction: row;
+       align-items: center;
+       gap: 16px;
+     }
+     
+     .actions { 
+       width: auto;
+       flex-wrap: nowrap;
+       justify-content: flex-start;
+     }
+     .act-btn { 
+       width: 34px; 
+       height: 34px;
+       flex: 0 0 auto;
+     }
+     
+     .srv-meta {
+       grid-template-columns: repeat(2, 1fr);
+     }
+     
+     .input-grid { grid-template-columns: 1fr 1fr; }
+     
+     .package-selector { grid-template-columns: repeat(3, 1fr); }
+     
+     .settings-grid {
+       grid-template-columns: repeat(2, 1fr);
+     }
+     
+     .price-grid {
+       grid-template-columns: repeat(4, 1fr);
+     }
+   }
+   
+   @media (min-width: 1024px) {
+     .container { padding: 0 32px; }
+     header { padding: 0 32px; }
+     
+     .dashboard-grid { 
+       display: grid; 
+       grid-template-columns: 400px 1fr; 
+       gap: 32px; 
+     }
+     
+     .sidebar-col { gap: 24px; }
+     .panel-card { padding: 24px; }
+     
+     .server-panel { padding: 24px; }
+     
+     .stat-val { font-size: 2rem; }
+     
+     .toast-container {
+       right: 32px;
+       left: auto;
+       bottom: 32px;
+       max-width: 350px;
+     }
+     
+     .package-selector { grid-template-columns: repeat(4, 1fr); }
+     
+     .srv-meta {
+       grid-template-columns: repeat(2, 1fr);
+     }
+   }
+   
+   @media (min-width: 1280px) {
+     .container { padding: 0 40px; }
+     header { padding: 0 40px; }
+     
+     .dashboard-grid { grid-template-columns: 420px 1fr; }
+   }
+ </style>
+</head>
+<body>
+
+<header>
+ <div class="nav-container">
+   <a href="#" class="brand">
+     <div class="brand-icon"><i class="fas fa-terminal"></i></div>
+     <%= storeName %>
+   </a>
+   <div class="nav-actions">
+     <button class="btn-icon" onclick="openSettingsModal()" title="Settings"><i class="fas fa-cog"></i></button>
+     <a href="/" class="btn-icon" title="Logout"><i class="fas fa-power-off"></i></a>
+   </div>
+ </div>
+</header>
+
+<div class="main-content">
+ <div class="container">
+
+   <div class="stats-grid">
+     <div class="stat-card glass-card">
+       <div class="stat-header">
+         <div class="stat-icon blue"><i class="fas fa-server"></i></div>
+       </div>
+       <div class="stat-val" style="color: white;" id="totalPanels">0</div>
+       <div class="stat-label">Total Panels</div>
+       <div class="stat-trend">Database records</div>
+     </div>
+     <div class="stat-card glass-card">
+       <div class="stat-header">
+         <div class="stat-icon green"><i class="fas fa-play"></i></div>
+       </div>
+       <div class="stat-val" style="color: var(--success);" id="activePanels">0</div>
+       <div class="stat-label">Active</div>
+       <div class="stat-trend">Running instances</div>
+     </div>
+     <div class="stat-card glass-card">
+       <div class="stat-header">
+         <div class="stat-icon yellow"><i class="fas fa-pause"></i></div>
+       </div>
+       <div class="stat-val" style="color: var(--warning);" id="expiredPanels">0</div>
+       <div class="stat-label">Soon Expired</div>
+       <div class="stat-trend">Within 3 days</div>
+     </div>
+     <div class="stat-card glass-card">
+       <div class="stat-header">
+         <div class="stat-icon red"><i class="fas fa-lock"></i></div>
+       </div>
+       <div class="stat-val" style="color: var(--danger);" id="externalPanels">0</div>
+       <div class="stat-label">External</div>
+       <div class="stat-trend">Imported servers</div>
+     </div>
+   </div>
+
+   <div class="dashboard-grid">
+
+     <div class="sidebar-col">
+       <div class="panel-card glass-card">
+         <div class="card-head">
+           <div class="card-head-icon"><i class="fas fa-rocket"></i></div>
+           Deploy Server
+         </div>
+         
+         <div class="package-selector" id="packageSelector">
+           <div class="package-option" data-value="Panel 1GB RAM">
+             <div class="package-name">1GB RAM</div>
+             <div class="package-specs">100% CPU · 3GB Disk</div>
+             <div class="package-price">Basic</div>
+           </div>
+           <div class="package-option" data-value="Panel 2GB RAM">
+             <div class="package-name">2GB RAM</div>
+             <div class="package-specs">190% CPU · 6GB Disk</div>
+             <div class="package-price">Standard</div>
+           </div>
+           <div class="package-option" data-value="Panel 3GB RAM">
+             <div class="package-name">3GB RAM</div>
+             <div class="package-specs">250% CPU · 7GB Disk</div>
+             <div class="package-price">Pro</div>
+           </div>
+           <div class="package-option" data-value="Panel 4GB RAM">
+             <div class="package-name">4GB RAM</div>
+             <div class="package-specs">290% CPU · 9GB Disk</div>
+             <div class="package-price">Advanced</div>
+           </div>
+           <div class="package-option" data-value="Panel 5GB RAM">
+             <div class="package-name">5GB RAM</div>
+             <div class="package-specs">330% CPU · 13GB Disk</div>
+             <div class="package-price">Premium</div>
+           </div>
+           <div class="package-option" data-value="Panel 6GB RAM">
+             <div class="package-name">6GB RAM</div>
+             <div class="package-specs">450% CPU · 15GB Disk</div>
+             <div class="package-price">Ultra</div>
+           </div>
+           <div class="package-option" data-value="Panel 7GB RAM">
+             <div class="package-name">7GB RAM</div>
+             <div class="package-specs">500% CPU · 17GB Disk</div>
+             <div class="package-price">Max</div>
+           </div>
+           <div class="package-option" data-value="Panel PREMIUM">
+             <div class="package-name">UNLIMITED</div>
+             <div class="package-specs">Unlimited Resources</div>
+             <div class="package-price">Ultimate</div>
+           </div>
+         </div>
+         
+         <form id="createPanelForm">
+           <input type="hidden" name="product" id="selectedProduct" value="Panel 1GB RAM" required>
+           
+           <div class="input-group">
+             <label class="input-label">Username</label>
+             <input type="text" name="username" class="input-field" placeholder="client_name" required pattern="[a-z0-9_]{3,20}" id="usernameInput">
+           </div>
+           
+           <div class="input-grid">
+               <div class="input-group">
+                   <label class="input-label">Duration (Days)</label>
+                   <input type="number" name="days" class="input-field" value="30" min="1" max="365">
+               </div>
+               <div class="input-group">
+                   <label class="input-label">Password</label>
+                   <div class="password-input-group">
+                     <input type="text" name="password" class="input-field" placeholder="Auto generate" id="passwordInput">
+                     <button type="button" class="btn-generate" onclick="generatePassword()">
+                       <i class="fas fa-dice"></i>
+                       <span>Generate</span>
+                     </button>
+                   </div>
+               </div>
+           </div>
+           <button type="submit" class="btn-submit"><i class="fas fa-rocket"></i> Deploy Now</button>
+         </form>
+       </div>
+
+       <div class="panel-card glass-card">
+           <div class="card-head">
+             <div class="card-head-icon" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);"><i class="fas fa-network-wired"></i></div>
+             System Monitor
+           </div>
+           
+           <div class="chart-container">
+             <canvas id="trafficChart"></canvas>
+           </div>
+           
+           <div style="margin-top: 16px; font-size: 0.75rem; color: var(--text-muted);">
+             <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+               <span>Panel Usage</span>
+               <span id="usagePercent">0%</span>
+             </div>
+             <div style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
+               <div id="usageBar" style="height: 100%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); width: 0%; transition: width 0.5s;"></div>
+             </div>
+           </div>
+       </div>
+
+       <div class="panel-card glass-card">
+           <div class="card-head">
+             <div class="card-head-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);"><i class="fas fa-ban"></i></div>
+             IP Block Management
+           </div>
+           
+           <div style="margin-bottom: 16px; display: flex; gap: 8px;">
+             <button class="btn-submit" style="flex: 1; background: linear-gradient(135deg, #ef4444, #dc2626);" onclick="blockIP()">
+               <i class="fas fa-ban"></i> Block IP
+             </button>
+             <button class="btn-submit btn-secondary" style="flex: 1;" onclick="clearAllBlockedIPs()">
+               <i class="fas fa-trash-alt"></i> Clear All
+             </button>
+           </div>
+           
+           <div id="blockedIPsList" class="server-list" style="max-height: 300px; overflow-y: auto;">
+             <div class="empty-state">
+               <i class="fas fa-shield-alt"></i>
+               <p>Loading blocked IPs...</p>
+             </div>
+           </div>
+       </div>
+
+       <div class="panel-card glass-card">
+         <div class="card-head">
+           <div class="card-head-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);"><i class="fas fa-box"></i></div>
+           Other Products
+         </div>
+         
+         <button class="btn-submit" onclick="openAddProductModal()" style="margin-bottom: 16px;">
+           <i class="fas fa-plus"></i> Add Product
+         </button>
+         
+         <div id="otherProductsList" class="other-products-section"></div>
+       </div>
+     </div>
+
+     <div class="main-col">
+       <div class="server-panel glass-card">
+         <div class="panel-header">
+           <div class="panel-title">
+             <i class="fas fa-chart-line" style="color: var(--accent-primary);"></i>
+             Panel Monitor
+           </div>
+           <div style="display: flex; gap: 8px;">
+             <span class="panel-badge"><%= pterodactylServers.length %> Live Servers</span>
+             <span class="panel-badge" style="background: rgba(6,182,212,0.15); color: var(--accent-cyan);" id="dbPanelsCount">0 Database</span>
+           </div>
+         </div>
+         
+         <div class="tabs-container">
+           <button class="tab-btn active" data-tab="live-servers">
+             <i class="fas fa-bolt"></i> Live Servers
+           </button>
+           <button class="tab-btn" data-tab="all-panels">
+             <i class="fas fa-database"></i> All Panels (<span id="allPanelsCount">0</span>)
+           </button>
+           <button class="tab-btn" data-tab="expiring">
+             <i class="fas fa-clock"></i> Expiring Soon
+           </button>
+           <button class="tab-btn" data-tab="external">
+             <i class="fas fa-external-link-alt"></i> External
+           </button>
+         </div>
+         
+         <div class="tab-content active" id="live-servers">
+           <div class="server-list">
+             <% if (pterodactylServers && pterodactylServers.length > 0) { %>
+               <% pterodactylServers.forEach(server => { 
+                   let borderClass = 'border-green';
+                   let badgeClass = 'bg-green';
+                   
+                   if (server.statusColor === 'red') {
+                       borderClass = 'border-red';
+                       badgeClass = 'bg-red';
+                   } else if (server.statusColor === 'yellow') {
+                       borderClass = 'border-yellow';
+                       badgeClass = 'bg-yellow';
+                   }
+               %>
+               <div class="server-item <%= borderClass %>">
+                   <div class="server-content">
+                       <div class="srv-header">
+                           <span class="srv-name"><%= server.name %></span>
+                           <span class="badge <%= badgeClass %>"><%= server.statusText %></span>
+                       </div>
+                       
+                       <div class="srv-meta">
+                           <div class="meta-row">
+                               <div class="meta-item">
+                                   <i class="fas fa-user"></i>
+                                   <span><%= server.user %></span>
+                                   <span class="spec-pill"><%= server.specs.ram %></span>
+                               </div>
+                               <div class="meta-item">
+                                   <i class="far fa-clock"></i>
+                                   <% if (server.daysLeft > 0) { %>
+                                       <span class="highlight-days"><%= server.daysLeft %> days left</span>
+                                   <% } else if (server.daysLeft === 0) { %>
+                                       <span class="highlight-warning">Expires today</span>
+                                   <% } else { %>
+                                       <span class="highlight-expired"><%= Math.abs(server.daysLeft) %> days ago</span>
+                                   <% } %>
+                               </div>
+                           </div>
+                           <div class="meta-row">
+                               <div class="meta-item">
+                                   <i class="fas fa-history"></i>
+                                   <span>Active: <%= server.activeDays %>d</span>
+                               </div>
+                               <div class="meta-item">
+                                   <i class="fas fa-hdd"></i>
+                                   <span>ID: <%= server.serverId %></span>
+                               </div>
+                           </div>
+                       </div>
+                   </div>
+
+                   <div class="actions">
+                       <button class="act-btn btn-view" onclick="viewPanelDetails('<%= server.serverId %>', 'live')" title="View Details">
+                           <i class="fas fa-eye"></i>
+                       </button>
+                       <button class="act-btn btn-add" onclick="addTime('<%= server.serverId %>')" title="Add Days">
+                           <i class="fas fa-plus"></i>
+                       </button>
+                       <button class="act-btn btn-del" onclick="delTime('<%= server.serverId %>')" title="Reduce Days">
+                           <i class="fas fa-minus"></i>
+                       </button>
+                       <button class="act-btn btn-upgrade" onclick="openUpgradeModal('<%= server.serverId %>')" title="Upgrade Specs">
+                           <i class="fas fa-arrow-up"></i>
+                       </button>
+                       <button class="act-btn btn-lock <%= server.statusCode === 'admin_locked' ? 'locked' : '' %>" 
+                               onclick="suspendPanel('<%= server.serverId %>')" 
+                               title="Lock Server">
+                           <i class="fas fa-lock"></i>
+                       </button>
+                       <button class="act-btn btn-unlock" onclick="unsuspendPanel('<%= server.serverId %>')" title="Unlock Server">
+                           <i class="fas fa-unlock"></i>
+                       </button>
+                       <button class="act-btn btn-trash" onclick="deletePanel('<%= server.serverId %>')" title="Delete">
+                           <i class="fas fa-trash-alt"></i>
+                       </button>
+                   </div>
+               </div>
+               <% }) %>
+             <% } else { %>
+               <div class="empty-state">
+                   <i class="fas fa-cube"></i>
+                   <p>No active servers found</p>
+               </div>
+             <% } %>
+           </div>
+         </div>
+         
+         <div class="tab-content" id="all-panels">
+           <div class="server-list" id="allPanelsList"></div>
+         </div>
+         
+         <div class="tab-content" id="expiring">
+           <div class="server-list" id="expiringPanelsList"></div>
+         </div>
+         
+         <div class="tab-content" id="external">
+           <div class="server-list" id="externalPanelsList"></div>
+         </div>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+
+<div class="modal-overlay" id="panelModal">
+ <div class="modal-container">
+   <div class="modal-header">
+     <div class="modal-title">
+       <i class="fas fa-info-circle" style="color: var(--accent-primary);"></i>
+       <span id="modalTitle">Panel Details</span>
+     </div>
+     <button class="modal-close" id="closeModal">&times;</button>
+   </div>
+   <div class="modal-body" id="modalBody"></div>
+ </div>
+</div>
+
+<div class="modal-overlay" id="upgradeModal">
+ <div class="modal-container" style="max-width: 500px;">
+   <div class="modal-header">
+     <div class="modal-title">
+       <i class="fas fa-arrow-up" style="color: var(--accent-secondary);"></i>
+       <span>Upgrade Server Specs</span>
+     </div>
+     <button class="modal-close" onclick="closeUpgradeModal()">&times;</button>
+   </div>
+   <div class="modal-body">
+     <div class="package-selector" id="upgradePackageSelector" style="margin-bottom: 20px;">
+       <div class="package-option" data-spec="1gb">
+         <div class="package-name">1GB RAM</div>
+         <div class="package-specs">100% CPU · 3GB Disk</div>
+       </div>
+       <div class="package-option" data-spec="2gb">
+         <div class="package-name">2GB RAM</div>
+         <div class="package-specs">190% CPU · 6GB Disk</div>
+       </div>
+       <div class="package-option" data-spec="3gb">
+         <div class="package-name">3GB RAM</div>
+         <div class="package-specs">250% CPU · 7GB Disk</div>
+       </div>
+       <div class="package-option" data-spec="4gb">
+         <div class="package-name">4GB RAM</div>
+         <div class="package-specs">290% CPU · 9GB Disk</div>
+       </div>
+       <div class="package-option" data-spec="5gb">
+         <div class="package-name">5GB RAM</div>
+         <div class="package-specs">330% CPU · 13GB Disk</div>
+       </div>
+       <div class="package-option" data-spec="6gb">
+         <div class="package-name">6GB RAM</div>
+         <div class="package-specs">450% CPU · 15GB Disk</div>
+       </div>
+       <div class="package-option" data-spec="7gb">
+         <div class="package-name">7GB RAM</div>
+         <div class="package-specs">500% CPU · 17GB Disk</div>
+       </div>
+       <div class="package-option" data-spec="unli">
+         <div class="package-name">UNLIMITED</div>
+         <div class="package-specs">Unlimited Resources</div>
+       </div>
+     </div>
+     <button class="btn-submit" onclick="confirmUpgrade()" style="margin-top: 10px;">
+       <i class="fas fa-check"></i> Confirm Upgrade
+     </button>
+   </div>
+ </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+ <div class="modal-container" style="max-width: 900px;">
+   <div class="modal-header">
+     <div class="modal-title">
+       <i class="fas fa-cog" style="color: var(--accent-primary);"></i>
+       <span>Website Settings</span>
+     </div>
+     <button class="modal-close" onclick="closeSettingsModal()">&times;</button>
+   </div>
+   <div class="modal-body">
+     <form id="settingsForm">
+       <div class="settings-grid">
+         <div class="settings-input-group">
+           <label class="settings-input-label">Website Logo URL</label>
+           <input type="url" name="logo" class="settings-input-field" id="logoInput" placeholder="https://example.com/logo.jpg" value="<%= settings.WEBSITE_LOGO || '' %>">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">Banner URL</label>
+           <input type="url" name="banner" class="settings-input-field" id="bannerInput" placeholder="https://example.com/banner.jpg" value="<%= settings.WEBSITE_BANNER || '' %>">
+         </div>
+       </div>
+       
+       <div class="settings-input-group">
+         <label class="settings-input-label">Announcement</label>
+         <input type="text" name="announcement" class="settings-input-field" id="announcementInput" placeholder="Masukkan pengumuman" value="<%= settings.ANNOUNCEMENT && settings.ANNOUNCEMENT.text ? settings.ANNOUNCEMENT.text : '' %>">
+       </div>
+       
+       <div class="settings-grid">
+         <div class="settings-toggle">
+           <span style="font-size: 0.85rem; font-weight: 600;">Show Announcement</span>
+           <label class="toggle-switch">
+             <input type="checkbox" name="announcementActive" id="announcementActive" <%= settings.ANNOUNCEMENT && settings.ANNOUNCEMENT.active ? 'checked' : '' %>>
+             <span class="toggle-slider"></span>
+           </label>
+         </div>
+         
+         <div class="settings-toggle">
+           <span style="font-size: 0.85rem; font-weight: 600; color: <%= settings.MAINTENANCE_MODE ? 'var(--danger)' : '' %>">Maintenance Mode</span>
+           <label class="toggle-switch">
+             <input type="checkbox" name="maintenanceMode" id="maintenanceMode" <%= settings.MAINTENANCE_MODE ? 'checked' : '' %>>
+             <span class="toggle-slider"></span>
+           </label>
+         </div>
+         
+         <div class="settings-toggle">
+           <span style="font-size: 0.85rem; font-weight: 600; color: <%= settings.RESTOCK ? 'var(--warning)' : '' %>">Restock Mode</span>
+           <label class="toggle-switch">
+             <input type="checkbox" name="restock" id="restockMode" <%= settings.RESTOCK ? 'checked' : '' %>>
+             <span class="toggle-slider"></span>
+           </label>
+         </div>
+       </div>
+       
+       <div style="margin-top: 24px; margin-bottom: 16px;">
+         <div class="card-head">
+           <div class="card-head-icon" style="background: linear-gradient(135deg, #06b6d4, #3b82f6);"><i class="fas fa-tag"></i></div>
+           Price Settings
+         </div>
+       </div>
+       
+       <div class="price-grid">
+         <div class="settings-input-group">
+           <label class="settings-input-label">1GB RAM</label>
+           <input type="number" name="price_1gb" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_1GB : 3000 %>" min="0" step="500">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">2GB RAM</label>
+           <input type="number" name="price_2gb" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_2GB : 5000 %>" min="0" step="500">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">3GB RAM</label>
+           <input type="number" name="price_3gb" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_3GB : 7000 %>" min="0" step="500">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">4GB RAM</label>
+           <input type="number" name="price_4gb" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_4GB : 9000 %>" min="0" step="500">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">5GB RAM</label>
+           <input type="number" name="price_5gb" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_5GB : 11000 %>" min="0" step="500">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">6GB RAM</label>
+           <input type="number" name="price_6gb" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_6GB : 14000 %>" min="0" step="500">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">7GB RAM</label>
+           <input type="number" name="price_7gb" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_7GB : 18000 %>" min="0" step="500">
+         </div>
+         <div class="settings-input-group">
+           <label class="settings-input-label">Premium/Unlimited</label>
+           <input type="number" name="price_premium" class="settings-input-field" value="<%= settings.PRICES ? settings.PRICES.PANEL_PREMIUM : 30000 %>" min="0" step="1000">
+         </div>
+       </div>
+       
+       <div style="display: flex; gap: 12px; margin-top: 24px;">
+         <button type="submit" class="btn-submit" style="flex: 2;">Save Settings</button>
+         <button type="button" class="btn-submit btn-secondary" onclick="closeSettingsModal()" style="flex: 1;">Cancel</button>
+       </div>
+     </form>
+   </div>
+ </div>
+</div>
+
+<div class="modal-overlay" id="productModal">
+  <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-header">
+      <div class="modal-title">
+        <i class="fas fa-box" style="color: var(--accent-primary);"></i>
+        <span id="productModalTitle">Add New Product</span>
+      </div>
+      <button class="modal-close" onclick="closeProductModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="productForm">
+        <input type="hidden" name="productId" id="productId">
+        
+        <div class="product-form-group">
+          <label class="product-form-label">Product Name *</label>
+          <input type="text" name="productName" id="productName" class="product-form-input" placeholder="Example: Jasa Install Panel" required>
+        </div>
+        
+        <div class="product-form-group">
+          <label class="product-form-label">Description</label>
+          <textarea name="productDescription" id="productDescription" class="product-form-input" rows="3" placeholder="Product description..."></textarea>
+        </div>
+        
+        <div class="product-form-group">
+          <label class="product-form-label">Price (Rp)</label>
+          <input type="number" name="productPrice" id="productPrice" class="product-form-input" placeholder="50000" min="0">
+          <small style="color: var(--text-muted); font-size: 0.7rem;">Leave empty if price not shown</small>
+        </div>
+        
+        <div class="product-form-group">
+          <label class="product-form-label">WhatsApp Number</label>
+          <input type="text" name="whatsappNumber" id="whatsappNumber" class="product-form-input" placeholder="628123456789">
+          <small style="color: var(--text-muted); font-size: 0.7rem;">Leave empty to use default number</small>
+        </div>
+        
+        <div class="product-form-group">
+          <label class="product-form-label">Banner/Image URL</label>
+          <input type="url" name="bannerImage" id="bannerImage" class="product-form-input" placeholder="https://example.com/banner.jpg">
+          <div id="bannerPreview" class="banner-preview" style="display: none;"></div>
+        </div>
+        
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <button type="submit" class="btn-submit" style="flex: 2;">Save Product</button>
+          <button type="button" class="btn-submit btn-secondary" onclick="closeProductModal()" style="flex: 1;">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+ let allPanelsData = [];
+ let trafficChart = null;
+ let currentOtherProducts = [];
+ let upgradeTargetServerId = null;
+ 
+ function showToast(msg, type = 'info') {
+     const c = document.getElementById('toastContainer');
+     const t = document.createElement('div');
+     t.className = `toast ${type}`;
+     
+     let icon = 'fa-info-circle';
+     let title = 'Notification';
+     if(type === 'success'){ icon = 'fa-check'; title = 'Success'; }
+     if(type === 'error'){ icon = 'fa-exclamation-triangle'; title = 'Error'; }
+     
+     t.innerHTML = `
+         <div class="toast-icon"><i class="fas ${icon}"></i></div>
+         <div class="toast-content">
+             <div class="toast-title">${title}</div>
+             <div class="toast-msg">${msg}</div>
+         </div>
+     `;
+     
+     c.appendChild(t);
+     requestAnimationFrame(() => t.classList.add('show'));
+     
+     setTimeout(() => { 
+         t.classList.remove('show'); 
+         setTimeout(() => t.remove(), 400); 
+     }, 4000);
+ }
+ 
+ async function loadAllPanels() {
+     try {
+         const response = await axios.get('/api/panels-database');
+         allPanelsData = response.data.panels || [];
+         updatePanelStats();
+         renderAllPanelsTab();
+         renderExpiringPanelsTab();
+         renderExternalPanelsTab();
+         updateChart();
+     } catch (error) {}
+ }
+ 
+ function updatePanelStats() {
+     const total = allPanelsData.length;
+     const active = allPanelsData.filter(p => p.status === 'active').length;
+     const expired = allPanelsData.filter(p => {
+         if (!p.panel_data?.expires_at) return false;
+         const expiresAt = new Date(p.panel_data.expires_at);
+         const now = new Date();
+         const diffDays = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+         return diffDays <= 3 && diffDays > 0;
+     }).length;
+     const external = allPanelsData.filter(p => p.password && p.password.includes('External')).length;
+     
+     document.getElementById('totalPanels').textContent = total;
+     document.getElementById('activePanels').textContent = active;
+     document.getElementById('expiredPanels').textContent = expired;
+     document.getElementById('externalPanels').textContent = external;
+     document.getElementById('allPanelsCount').textContent = total;
+     document.getElementById('dbPanelsCount').textContent = `${total} Database`;
+     
+     const usagePercent = Math.min(100, Math.round((active / 50) * 100));
+     document.getElementById('usagePercent').textContent = `${usagePercent}%`;
+     document.getElementById('usageBar').style.width = `${usagePercent}%`;
+ }
+ 
+ function renderAllPanelsTab() {
+     const container = document.getElementById('allPanelsList');
+     if (allPanelsData.length === 0) {
+         container.innerHTML = `
+             <div class="empty-state">
+                 <i class="fas fa-database"></i>
+                 <p>No panel data found in database</p>
+             </div>
+         `;
+         return;
+     }
+     
+     container.innerHTML = allPanelsData.map(panel => {
+         const panelData = panel.panel_data || {};
+         const expiresAt = panelData.expires_at ? new Date(panelData.expires_at) : new Date();
+         const now = new Date();
+         const diffDays = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+         
+         let statusClass = 'bg-green';
+         let statusText = 'Active';
+         let borderClass = 'border-green';
+         
+         if (panel.status !== 'active') {
+             statusClass = 'bg-yellow';
+             statusText = 'Inactive';
+             borderClass = 'border-yellow';
+         }
+         
+         if (diffDays <= 0) {
+             statusClass = 'bg-red';
+             statusText = 'Expired';
+             borderClass = 'border-red';
+         } else if (diffDays <= 3) {
+             statusClass = 'bg-yellow';
+             statusText = 'Expiring';
+             borderClass = 'border-yellow';
+         }
+         
+         const username = panel.username || panelData.username || 'N/A';
+         const product = panel.product_name || 'Unknown';
+         const specs = panelData.specs || {};
+         const serverId = panelData.server_id || 'N/A';
+         
+         return `
+             <div class="server-item ${borderClass}">
+                 <div class="server-content">
+                     <div class="srv-header">
+                         <span class="srv-name">${escapeHtml(username)} - ${escapeHtml(product)}</span>
+                         <span class="badge ${statusClass}">${statusText}</span>
+                     </div>
+                     
+                     <div class="srv-meta">
+                         <div class="meta-row">
+                             <div class="meta-item">
+                                 <i class="fas fa-id-card"></i>
+                                 <span>ID: ${panel.id}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="far fa-clock"></i>
+                                 <span>${diffDays > 0 ? `${diffDays} days left` : 'Expired'}</span>
+                             </div>
+                         </div>
+                         <div class="meta-row">
+                             <div class="meta-item">
+                                 <i class="fas fa-microchip"></i>
+                                 <span>${specs.ram || 'N/A'}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="fas fa-hdd"></i>
+                                 <span>${specs.disk || 'N/A'}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="fas fa-bolt"></i>
+                                 <span>${specs.cpu || 'N/A'}</span>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="actions">
+                     <button class="act-btn btn-view" onclick="viewDatabasePanel('${panel.id}')" title="View Details">
+                         <i class="fas fa-eye"></i>
+                     </button>
+                     <button class="act-btn btn-add" onclick="addTimeToPanel('${serverId}')" title="Add Time">
+                         <i class="fas fa-plus"></i>
+                     </button>
+                     <button class="act-btn btn-upgrade" onclick="openUpgradeModal('${serverId}')" title="Upgrade Specs">
+                         <i class="fas fa-arrow-up"></i>
+                     </button>
+                     <button class="act-btn btn-trash" onclick="deleteDatabasePanel('${panel.id}')" title="Delete">
+                         <i class="fas fa-trash-alt"></i>
+                     </button>
+                 </div>
+             </div>
+         `;
+     }).join('');
+ }
+ 
+ function renderExpiringPanelsTab() {
+     const container = document.getElementById('expiringPanelsList');
+     const expiringPanels = allPanelsData.filter(panel => {
+         if (!panel.panel_data?.expires_at) return false;
+         const expiresAt = new Date(panel.panel_data.expires_at);
+         const now = new Date();
+         const diffDays = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+         return diffDays <= 7 && diffDays > 0;
+     });
+     
+     if (expiringPanels.length === 0) {
+         container.innerHTML = `
+             <div class="empty-state">
+                 <i class="fas fa-clock"></i>
+                 <p>No panels expiring soon</p>
+             </div>
+         `;
+         return;
+     }
+     
+     container.innerHTML = expiringPanels.map(panel => {
+         const panelData = panel.panel_data || {};
+         const expiresAt = new Date(panelData.expires_at);
+         const now = new Date();
+         const diffDays = Math.ceil((expiresAt - now) / (1000 * 60 * 60 * 24));
+         const username = panel.username || panelData.username || 'N/A';
+         const specs = panelData.specs || {};
+         const serverId = panelData.server_id || 'N/A';
+         
+         return `
+             <div class="server-item border-yellow">
+                 <div class="server-content">
+                     <div class="srv-header">
+                         <span class="srv-name">${escapeHtml(username)}</span>
+                         <span class="badge bg-yellow">${diffDays} days left</span>
+                     </div>
+                     
+                     <div class="srv-meta">
+                         <div class="meta-row">
+                             <div class="meta-item">
+                                 <i class="fas fa-calendar"></i>
+                                 <span>Expires: ${expiresAt.toLocaleDateString()}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="fas fa-microchip"></i>
+                                 <span>${specs.ram || 'N/A'}</span>
+                             </div>
+                         </div>
+                         <div class="meta-row">
+                             <div class="meta-item">
+                                 <i class="fas fa-server"></i>
+                                 <span>${panel.product_name || 'Unknown'}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="fas fa-id-card"></i>
+                                 <span>ID: ${panel.id}</span>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="actions">
+                     <button class="act-btn btn-view" onclick="viewDatabasePanel('${panel.id}')" title="View Details">
+                         <i class="fas fa-eye"></i>
+                     </button>
+                     <button class="act-btn btn-add" onclick="addTimeToPanel('${serverId}')" title="Add Time">
+                         <i class="fas fa-plus"></i>
+                     </button>
+                     <button class="act-btn btn-upgrade" onclick="openUpgradeModal('${serverId}')" title="Upgrade Specs">
+                         <i class="fas fa-arrow-up"></i>
+                     </button>
+                 </div>
+             </div>
+         `;
+     }).join('');
+ }
+ 
+ function renderExternalPanelsTab() {
+     const container = document.getElementById('externalPanelsList');
+     const externalPanels = allPanelsData.filter(p => p.password && p.password.includes('External'));
+     
+     if (externalPanels.length === 0) {
+         container.innerHTML = `
+             <div class="empty-state">
+                 <i class="fas fa-external-link-alt"></i>
+                 <p>No external panels found</p>
+             </div>
+         `;
+         return;
+     }
+     
+     container.innerHTML = externalPanels.map(panel => {
+         const panelData = panel.panel_data || {};
+         const username = panel.username || panelData.username || 'N/A';
+         const specs = panelData.specs || {};
+         const created = panel.created_at ? new Date(panel.created_at).toLocaleDateString() : 'Unknown';
+         const serverId = panelData.server_id || 'N/A';
+         
+         return `
+             <div class="server-item border-green">
+                 <div class="server-content">
+                     <div class="srv-header">
+                         <span class="srv-name">${escapeHtml(username)}</span>
+                         <span class="badge bg-green">External</span>
+                     </div>
+                     
+                     <div class="srv-meta">
+                         <div class="meta-row">
+                             <div class="meta-item">
+                                 <i class="fas fa-calendar"></i>
+                                 <span>Created: ${created}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="fas fa-server"></i>
+                                 <span>${panel.product_name || 'Imported'}</span>
+                             </div>
+                         </div>
+                         <div class="meta-row">
+                             <div class="meta-item">
+                                 <i class="fas fa-microchip"></i>
+                                 <span>${specs.ram || 'N/A'}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="fas fa-hdd"></i>
+                                 <span>${specs.disk || 'N/A'}</span>
+                             </div>
+                             <div class="meta-item">
+                                 <i class="fas fa-bolt"></i>
+                                 <span>${specs.cpu || 'N/A'}</span>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="actions">
+                     <button class="act-btn btn-view" onclick="viewDatabasePanel('${panel.id}')" title="View Details">
+                         <i class="fas fa-eye"></i>
+                     </button>
+                     <button class="act-btn btn-add" onclick="addTimeToPanel('${serverId}')" title="Add Time">
+                         <i class="fas fa-plus"></i>
+                     </button>
+                     <button class="act-btn btn-upgrade" onclick="openUpgradeModal('${serverId}')" title="Upgrade Specs">
+                         <i class="fas fa-arrow-up"></i>
+                     </button>
+                     <button class="act-btn btn-trash" onclick="deleteDatabasePanel('${panel.id}')" title="Delete">
+                         <i class="fas fa-trash-alt"></i>
+                     </button>
+                 </div>
+             </div>
+         `;
+     }).join('');
+ }
+ 
+ async function viewPanelDetails(serverId, type = 'live') {
+     try {
+         let panelData;
+         let title = 'Panel Details';
+         
+         if (type === 'live') {
+             const response = await axios.get(`/api/server-details/${serverId}`);
+             panelData = response.data;
+             title = `${panelData.name} - Details`;
+         } else {
+             panelData = allPanelsData.find(p => p.id === serverId);
+             if (!panelData) throw new Error('Panel not found');
+             title = `${panelData.username} - Database Record`;
+         }
+         
+         document.getElementById('modalTitle').textContent = title;
+         document.getElementById('modalBody').innerHTML = createPanelDetailsHTML(panelData, type);
+         document.getElementById('panelModal').classList.add('active');
+     } catch (error) {
+         showToast('Failed to load panel details', 'error');
+     }
+ }
+ 
+ function viewDatabasePanel(panelId) {
+     const panelData = allPanelsData.find(p => p.id === panelId);
+     if (!panelData) {
+         showToast('Panel not found in database', 'error');
+         return;
+     }
+     
+     document.getElementById('modalTitle').textContent = `${panelData.username} - Database Record`;
+     document.getElementById('modalBody').innerHTML = createPanelDetailsHTML(panelData, 'database');
+     document.getElementById('panelModal').classList.add('active');
+ }
+ 
+ function createPanelDetailsHTML(panelData, type) {
+     if (type === 'live') {
+         return `
+             <div class="panel-details-grid">
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-server"></i></div>
+                         <div class="detail-title">Server Information</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">Server ID:</span>
+                             <span class="detail-value">${panelData.id}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Name:</span>
+                             <span class="detail-value">${panelData.name}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Status:</span>
+                             <span class="detail-value">
+                                 <span class="status-indicator ${panelData.suspended ? 'status-suspended' : 'status-active'}"></span>
+                                 ${panelData.suspended ? 'Suspended' : 'Active'}
+                             </span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Created:</span>
+                             <span class="detail-value">${new Date(panelData.created_at).toLocaleString()}</span>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-user"></i></div>
+                         <div class="detail-title">User Information</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">Username:</span>
+                             <span class="detail-value">${panelData.user?.username || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Email:</span>
+                             <span class="detail-value">${panelData.user?.email || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">User ID:</span>
+                             <span class="detail-value">${panelData.user?.id || 'N/A'}</span>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-microchip"></i></div>
+                         <div class="detail-title">Resources</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">RAM:</span>
+                             <span class="detail-value">${(panelData.limits?.memory / 1000).toFixed(1)} GB</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">CPU:</span>
+                             <span class="detail-value">${panelData.limits?.cpu || 0}%</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Disk:</span>
+                             <span class="detail-value">${(panelData.limits?.disk / 1000).toFixed(1)} GB</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Databases:</span>
+                             <span class="detail-value">${panelData.feature_limits?.databases || 0}</span>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-network-wired"></i></div>
+                         <div class="detail-title">Network</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">Node:</span>
+                             <span class="detail-value">${panelData.node || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Allocation:</span>
+                             <span class="detail-value">${panelData.allocation || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Identifier:</span>
+                             <span class="detail-value">${panelData.identifier || 'N/A'}</span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         `;
+     } else {
+         const panel = panelData;
+         const panelDataInner = panel.panel_data || {};
+         const specs = panelDataInner.specs || {};
+         
+         return `
+             <div class="panel-details-grid">
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-id-card"></i></div>
+                         <div class="detail-title">Basic Information</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">Record ID:</span>
+                             <span class="detail-value">${panel.id}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Username:</span>
+                             <span class="detail-value">${escapeHtml(panel.username || 'N/A')}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Product:</span>
+                             <span class="detail-value">${escapeHtml(panel.product_name || 'N/A')}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Status:</span>
+                             <span class="detail-value">
+                                 <span class="status-indicator ${panel.status === 'active' ? 'status-active' : 'status-suspended'}"></span>
+                                 ${panel.status || 'Unknown'}
+                             </span>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-calendar"></i></div>
+                         <div class="detail-title">Time Management</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">Duration:</span>
+                             <span class="detail-value">${panel.days || 0} days</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Created:</span>
+                             <span class="detail-value">${panel.created_at ? new Date(panel.created_at).toLocaleString() : 'Unknown'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Expires:</span>
+                             <span class="detail-value">${panelDataInner.expires_at ? new Date(panelDataInner.expires_at).toLocaleString() : 'Unknown'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Password:</span>
+                             <span class="detail-value">
+                                 ${panel.password || 'N/A'}
+                                 ${panel.password && !panel.password.includes('External') ? 
+                                     `<button class="copy-btn" onclick="copyToClipboard('${panel.password}')">Copy</button>` : ''}
+                             </span>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-server"></i></div>
+                         <div class="detail-title">Server Details</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">Server ID:</span>
+                             <span class="detail-value">${panelDataInner.server_id || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Server Name:</span>
+                             <span class="detail-value">${escapeHtml(panelDataInner.server_name || 'N/A')}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Owner Email:</span>
+                             <span class="detail-value">${panelDataInner.owner_email || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Panel URL:</span>
+                             <span class="detail-value">
+                                 ${panelDataInner.panel_url || 'N/A'}
+                                 ${panelDataInner.panel_url ? 
+                                     `<button class="copy-btn" onclick="copyToClipboard('${panelDataInner.panel_url}')">Copy</button>` : ''}
+                             </span>
+                         </div>
+                     </div>
+                 </div>
+                 
+                 <div class="detail-card">
+                     <div class="detail-header">
+                         <div class="detail-icon"><i class="fas fa-microchip"></i></div>
+                         <div class="detail-title">Specifications</div>
+                     </div>
+                     <div class="detail-content">
+                         <div class="detail-row">
+                             <span class="detail-label">RAM:</span>
+                             <span class="detail-value">${specs.ram || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">CPU:</span>
+                             <span class="detail-value">${specs.cpu || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Disk:</span>
+                             <span class="detail-value">${specs.disk || 'N/A'}</span>
+                         </div>
+                         <div class="detail-row">
+                             <span class="detail-label">Raw RAM:</span>
+                             <span class="detail-value">${specs.ram_raw || 'N/A'}</span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         `;
+     }
+ }
+ 
+ function initPackageSelector() {
+     const options = document.querySelectorAll('#packageSelector .package-option');
+     const hiddenInput = document.getElementById('selectedProduct');
+     
+     options.forEach(option => {
+         option.addEventListener('click', () => {
+             options.forEach(opt => opt.classList.remove('selected'));
+             option.classList.add('selected');
+             hiddenInput.value = option.dataset.value;
+         });
+     });
+     
+     if (options.length > 0) {
+         options[0].click();
+     }
+ }
+ 
+ function generatePassword() {
+     const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+     let password = '';
+     for (let i = 0; i < 8; i++) {
+         password += chars.charAt(Math.floor(Math.random() * chars.length));
+     }
+     document.getElementById('passwordInput').value = password;
+     showToast('Password generated', 'success');
+ }
+ 
+ function copyToClipboard(text) {
+     navigator.clipboard.writeText(text).then(() => {
+         showToast('Copied to clipboard', 'success');
+     });
+ }
+ 
+ function initTabs() {
+     const tabButtons = document.querySelectorAll('.tab-btn');
+     const tabContents = document.querySelectorAll('.tab-content');
+     
+     tabButtons.forEach(button => {
+         button.addEventListener('click', () => {
+             const tabId = button.dataset.tab;
+             
+             tabButtons.forEach(btn => btn.classList.remove('active'));
+             button.classList.add('active');
+             
+             tabContents.forEach(content => {
+                 content.classList.remove('active');
+                 if (content.id === tabId) {
+                     content.classList.add('active');
+                 }
+             });
+         });
+     });
+ }
+ 
+ function initChart() {
+     const ctx = document.getElementById('trafficChart').getContext('2d');
+     trafficChart = new Chart(ctx, {
+         type: 'line',
+         data: {
+             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+             datasets: [{
+                 label: 'Panel Usage',
+                 data: [12, 19, 8, 15, 22, 18],
+                 borderColor: 'rgba(99, 102, 241, 1)',
+                 backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                 borderWidth: 2,
+                 fill: true,
+                 tension: 0.4
+             }]
+         },
+         options: {
+             responsive: true,
+             maintainAspectRatio: false,
+             plugins: { legend: { display: false } },
+             scales: {
+                 x: {
+                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                     ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                 },
+                 y: {
+                     grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                     ticks: { color: 'rgba(255, 255, 255, 0.6)' }
+                 }
+             }
+         }
+     });
+ }
+ 
+ function updateChart() {
+     if (!trafficChart) return;
+     
+     const now = new Date();
+     const last6Months = Array.from({length: 6}, (_, i) => {
+         const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+         return d.toLocaleString('default', { month: 'short' });
+     }).reverse();
+     
+     const monthlyCounts = last6Months.map(() => 
+         Math.floor(Math.random() * 10) + Math.floor(allPanelsData.length / 10)
+     );
+     
+     trafficChart.data.labels = last6Months;
+     trafficChart.data.datasets[0].data = monthlyCounts;
+     trafficChart.update();
+ }
+ 
+ async function addTime(id) {
+     const d = prompt("Add how many days?");
+     if(!d || isNaN(d)) return;
+     try {
+         const res = await axios.post('/admin/addtime', { idserver: id, days: parseInt(d) });
+         showToast(res.data.message, 'success');
+         setTimeout(() => location.reload(), 1000);
+     } catch(e) { showToast('Failed to add time', 'error'); }
+ }
+
+ async function delTime(id) {
+     const d = prompt("Reduce how many days?");
+     if(!d || isNaN(d)) return;
+     try {
+         const res = await axios.post('/admin/deltime', { idserver: id, days: parseInt(d) });
+         showToast(res.data.message, 'success');
+         setTimeout(() => location.reload(), 1000);
+     } catch(e) { showToast('Failed to reduce time', 'error'); }
+ }
+
+ async function suspendPanel(id) {
+     if(!confirm("Lock this server?")) return;
+     try {
+         await axios.post('/admin/suspend', { idserver: id });
+         showToast('Server locked', 'success');
+         setTimeout(() => location.reload(), 1000);
+     } catch(e) { showToast('Failed to lock', 'error'); }
+ }
+
+ async function unsuspendPanel(id) {
+     if(!confirm("Unlock this server?")) return;
+     try {
+         await axios.post('/admin/unsuspend', { idserver: id });
+         showToast('Server unlocked', 'success');
+         setTimeout(() => location.reload(), 1000);
+     } catch(e) { showToast('Failed to unlock', 'error'); }
+ }
+
+ async function deletePanel(id) {
+     if(!confirm("Delete this server permanently?")) return;
+     try {
+         await axios.post(`/admin/api/panels/delete/${id}`);
+         showToast('Server deleted', 'success');
+         setTimeout(() => location.reload(), 1500);
+     } catch(e) { showToast('Failed to delete', 'error'); }
+ }
+ 
+ async function addTimeToPanel(serverId) {
+     if (!serverId || serverId === 'N/A') {
+         showToast('Invalid server ID', 'error');
+         return;
+     }
+     
+     const d = prompt("Add how many days to this panel?");
+     if(!d || isNaN(d)) return;
+     
+     try {
+         const res = await axios.post('/admin/addtime', { 
+             idserver: serverId, 
+             days: parseInt(d) 
+         });
+         showToast(res.data.message, 'success');
+         setTimeout(() => location.reload(), 1000);
+     } catch(e) { 
+         showToast('Failed to add time', 'error'); 
+     }
+ }
+ 
+ async function deleteDatabasePanel(panelId) {
+     if(!confirm("Delete this panel record from database?")) return;
+     
+     try {
+         const res = await axios.delete(`/admin/api/database-panel/${panelId}`);
+         showToast(res.data.message, 'success');
+         setTimeout(() => location.reload(), 1000);
+     } catch(e) { 
+         showToast('Failed to delete panel', 'error'); 
+     }
+ }
+ 
+ function openUpgradeModal(serverId) {
+     upgradeTargetServerId = serverId;
+     document.getElementById('upgradeModal').classList.add('active');
+     
+     const options = document.querySelectorAll('#upgradePackageSelector .package-option');
+     options.forEach(option => {
+         option.classList.remove('selected');
+     });
+     if (options.length > 0) {
+         options[0].classList.add('selected');
+     }
+ }
+ 
+ function closeUpgradeModal() {
+     document.getElementById('upgradeModal').classList.remove('active');
+     upgradeTargetServerId = null;
+ }
+ 
+ async function confirmUpgrade() {
+     if (!upgradeTargetServerId) {
+         showToast('No server selected', 'error');
+         return;
+     }
+     
+     const selectedOption = document.querySelector('#upgradePackageSelector .package-option.selected');
+     if (!selectedOption) {
+         showToast('Please select a specs', 'error');
+         return;
+     }
+     
+     const specs = selectedOption.dataset.spec;
+     
+     try {
+         const response = await axios.post('/admin/upgrade-specs', {
+             serverId: upgradeTargetServerId,
+             specs: specs
+         });
+         
+         if (response.data.success) {
+             showToast(response.data.message, 'success');
+             closeUpgradeModal();
+             setTimeout(() => location.reload(), 1500);
+         } else {
+             showToast(response.data.message || 'Upgrade failed', 'error');
+         }
+     } catch (error) {
+         showToast(error.response?.data?.message || 'Upgrade failed', 'error');
+     }
+ }
+ 
+ function setupForm(id, url, txt) {
+     document.getElementById(id).addEventListener('submit', async (e) => {
+         e.preventDefault();
+         const btn = e.target.querySelector('button');
+         const old = btn.innerHTML;
+         btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> ${txt}`;
+         btn.disabled = true;
+         try {
+             const data = Object.fromEntries(new FormData(e.target));
+             await axios.post(url, data);
+             showToast('Panel created successfully!', 'success');
+             e.target.reset();
+             if (document.querySelector('#packageSelector .package-option.selected')) {
+                 document.querySelector('#packageSelector .package-option.selected').click();
+             }
+             setTimeout(() => location.reload(), 1500);
+         } catch(err) { 
+             showToast(err.response?.data?.error || 'Operation failed', 'error'); 
+         }
+         finally { 
+             btn.innerHTML = old; 
+             btn.disabled = false; 
+         }
+     });
+ }
+ 
+ function openSettingsModal() {
+     document.getElementById('settingsModal').classList.add('active');
+ }
+ 
+ function closeSettingsModal() {
+     document.getElementById('settingsModal').classList.remove('active');
+ }
+ 
+ function setupSettingsForm() {
+     const form = document.getElementById('settingsForm');
+     if (form) {
+         form.addEventListener('submit', async (e) => {
+             e.preventDefault();
+             
+             const formData = new FormData(e.target);
+             const data = {
+                 logo: formData.get('logo'),
+                 banner: formData.get('banner'),
+                 announcement: formData.get('announcement'),
+                 announcementActive: formData.get('announcementActive') === 'on',
+                 maintenanceMode: formData.get('maintenanceMode') === 'on',
+                 restock: formData.get('restock') === 'on',
+                 prices: {
+                     PANEL_1GB: parseInt(formData.get('price_1gb')) || 3000,
+                     PANEL_2GB: parseInt(formData.get('price_2gb')) || 5000,
+                     PANEL_3GB: parseInt(formData.get('price_3gb')) || 7000,
+                     PANEL_4GB: parseInt(formData.get('price_4gb')) || 9000,
+                     PANEL_5GB: parseInt(formData.get('price_5gb')) || 11000,
+                     PANEL_6GB: parseInt(formData.get('price_6gb')) || 14000,
+                     PANEL_7GB: parseInt(formData.get('price_7gb')) || 18000,
+                     PANEL_PREMIUM: parseInt(formData.get('price_premium')) || 30000
+                 }
+             };
+             
+             const btn = e.target.querySelector('button[type="submit"]');
+             const old = btn.innerHTML;
+             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Saving...';
+             btn.disabled = true;
+             
+             try {
+                 const res = await axios.post('/admin/api/save-settings', data);
+                 if (res.data.success) {
+                     showToast('Settings saved successfully!', 'success');
+                     setTimeout(() => location.reload(), 1500);
+                 } else {
+                     showToast(res.data.message || 'Failed to save settings', 'error');
+                 }
+             } catch (err) {
+                 showToast('Failed to save settings', 'error');
+             } finally {
+                 btn.innerHTML = old;
+                 btn.disabled = false;
+             }
+         });
+     }
+ }
+ 
+ async function loadBlockedIPs() {
+     try {
+         const response = await axios.get('/admin/blocked-ips');
+         if (response.data.success) {
+             renderBlockedIPs(response.data.blockedIPs);
+         }
+     } catch (error) {
+         showToast('Failed to load blocked IPs', 'error');
+     }
+ }
+ 
+ function renderBlockedIPs(ips) {
+     const container = document.getElementById('blockedIPsList');
+     if (!container) return;
+     
+     if (ips.length === 0) {
+         container.innerHTML = `
+             <div class="empty-state">
+                 <i class="fas fa-shield-alt"></i>
+                 <p>No blocked IPs found</p>
+             </div>
+         `;
+         return;
+     }
+     
+     container.innerHTML = ips.map(ipData => `
+         <div class="server-item border-red">
+             <div class="server-content">
+                 <div class="srv-header">
+                     <span class="srv-name"><i class="fas fa-ban" style="color: var(--danger);"></i> ${ipData.ip}</span>
+                     <span class="badge bg-red">BLOCKED</span>
+                 </div>
+                 <div class="srv-meta">
+                     <div class="meta-row">
+                         <div class="meta-item">
+                             <i class="fas fa-clock"></i>
+                             <span>Time left: ${ipData.timeLeft} minutes</span>
+                         </div>
+                         <div class="meta-item">
+                             <i class="fas fa-exclamation-triangle"></i>
+                             <span>${ipData.reason || 'No reason'}</span>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             <div class="actions">
+                 <button class="act-btn btn-unlock" onclick="unblockIP('${ipData.ip}')" title="Unblock IP">
+                     <i class="fas fa-ban"></i> Unblock
+                 </button>
+             </div>
+         </div>
+     `).join('');
+ }
+ 
+ async function blockIP() {
+     const ip = prompt("Enter IP address to block:");
+     if (!ip) return;
+     
+     const reason = prompt("Reason for blocking (optional):");
+     
+     try {
+         const response = await axios.post('/admin/block-ip', { ip, reason });
+         if (response.data.success) {
+             showToast(response.data.message, 'success');
+             loadBlockedIPs();
+         }
+     } catch (error) {
+         showToast('Failed to block IP', 'error');
+     }
+ }
+ 
+ async function unblockIP(ip) {
+     if (!confirm(`Unblock IP ${ip}?`)) return;
+     
+     try {
+         const response = await axios.post('/admin/unblock-ip', { ip });
+         if (response.data.success) {
+             showToast(response.data.message, 'success');
+             loadBlockedIPs();
+         }
+     } catch (error) {
+         showToast('Failed to unblock IP', 'error');
+     }
+ }
+ 
+ async function clearAllBlockedIPs() {
+     if (!confirm('Clear all blocked IPs?')) return;
+     
+     try {
+         const response = await axios.post('/admin/clear-blocked-ips');
+         if (response.data.success) {
+             showToast(response.data.message, 'success');
+             loadBlockedIPs();
+         }
+     } catch (error) {
+         showToast('Failed to clear blocked IPs', 'error');
+     }
+ }
+ 
+ function escapeHtml(text) {
+     if (!text) return '';
+     const div = document.createElement('div');
+     div.textContent = text;
+     return div.innerHTML;
+ }
+ 
+ async function loadOtherProducts() {
+     try {
+         const response = await axios.get('/api/config');
+         if (response.data.success) {
+             currentOtherProducts = response.data.otherProducts || [];
+             renderOtherProductsList();
+         }
+     } catch (error) {
+         console.error('Failed to load other products:', error);
+     }
+ }
+ 
+ function renderOtherProductsList() {
+     const container = document.getElementById('otherProductsList');
+     if (!container) return;
+     
+     if (currentOtherProducts.length === 0) {
+         container.innerHTML = `
+             <div class="empty-state">
+                 <i class="fas fa-box-open"></i>
+                 <p>No other products added yet</p>
+             </div>
+         `;
+         return;
+     }
+     
+     container.innerHTML = currentOtherProducts.map(product => `
+         <div class="other-product-item">
+             <div class="other-product-header">
+                 <span class="other-product-name">${escapeHtml(product.name)}</span>
+                 <span class="other-product-badge">${product.price ? `Rp ${product.price.toLocaleString('id-ID')}` : 'Contact Admin'}</span>
+             </div>
+             <div class="other-product-details">
+                 <div><i class="fas fa-align-left"></i> ${escapeHtml(product.description || 'No description')}</div>
+                 <div><i class="fab fa-whatsapp"></i> ${product.whatsappNumber || 'Default'}</div>
+                 ${product.bannerImage ? `<div><i class="fas fa-image"></i> Banner available</div>` : ''}
+             </div>
+             <div class="other-product-actions">
+                 <button class="btn-edit-product" onclick="openEditProductModal('${product.id}')">
+                     <i class="fas fa-edit"></i> Edit
+                 </button>
+                 <button class="btn-delete-product" onclick="deleteOtherProduct('${product.id}')">
+                     <i class="fas fa-trash"></i> Delete
+                 </button>
+             </div>
+         </div>
+     `).join('');
+ }
+ 
+ function openAddProductModal() {
+     document.getElementById('productModalTitle').textContent = 'Add New Product';
+     document.getElementById('productForm').reset();
+     document.getElementById('productId').value = '';
+     document.getElementById('bannerPreview').style.display = 'none';
+     document.getElementById('productModal').classList.add('active');
+ }
+ 
+ function openEditProductModal(productId) {
+     const product = currentOtherProducts.find(p => p.id === productId);
+     if (!product) return;
+     
+     document.getElementById('productModalTitle').textContent = 'Edit Product';
+     document.getElementById('productId').value = product.id;
+     document.getElementById('productName').value = product.name;
+     document.getElementById('productDescription').value = product.description || '';
+     document.getElementById('productPrice').value = product.price || '';
+     document.getElementById('whatsappNumber').value = product.whatsappNumber || '';
+     document.getElementById('bannerImage').value = product.bannerImage || '';
+     
+     if (product.bannerImage) {
+         const preview = document.getElementById('bannerPreview');
+         preview.style.backgroundImage = `url('${product.bannerImage}')`;
+         preview.style.display = 'block';
+     } else {
+         document.getElementById('bannerPreview').style.display = 'none';
+     }
+     
+     document.getElementById('productModal').classList.add('active');
+ }
+ 
+ function closeProductModal() {
+     document.getElementById('productModal').classList.remove('active');
+ }
+ 
+ async function saveOtherProduct(formData) {
+     const product = {
+         id: formData.get('productId') || `product_${Date.now()}`,
+         name: formData.get('productName'),
+         description: formData.get('productDescription'),
+         price: formData.get('productPrice') ? parseInt(formData.get('productPrice')) : null,
+         whatsappNumber: formData.get('whatsappNumber'),
+         bannerImage: formData.get('bannerImage')
+     };
+     
+     try {
+         const response = await axios.post('/admin/save-other-product', { product });
+         if (response.data.success) {
+             showToast(response.data.message, 'success');
+             await loadOtherProducts();
+             closeProductModal();
+         } else {
+             showToast(response.data.message || 'Failed to save product', 'error');
+         }
+     } catch (error) {
+         showToast('Failed to save product', 'error');
+     }
+ }
+ 
+ async function deleteOtherProduct(productId) {
+     if (!confirm('Delete this product? This action cannot be undone.')) return;
+     
+     try {
+         const response = await axios.post('/admin/delete-other-product', { productId });
+         if (response.data.success) {
+             showToast(response.data.message, 'success');
+             await loadOtherProducts();
+         } else {
+             showToast(response.data.message || 'Failed to delete product', 'error');
+         }
+     } catch (error) {
+         showToast('Failed to delete product', 'error');
+     }
+ }
+ 
+ document.addEventListener('DOMContentLoaded', () => {
+     initPackageSelector();
+     initTabs();
+     initChart();
+     loadAllPanels();
+     loadBlockedIPs();
+     loadOtherProducts();
+     setupSettingsForm();
+     
+     setupForm('createPanelForm', '/admin/create-panel', 'Deploying...');
+     
+     document.getElementById('closeModal').addEventListener('click', () => {
+         document.getElementById('panelModal').classList.remove('active');
+     });
+     
+     document.getElementById('panelModal').addEventListener('click', (e) => {
+         if (e.target === document.getElementById('panelModal')) {
+             document.getElementById('panelModal').classList.remove('active');
+         }
+     });
+     
+     document.getElementById('productModal').addEventListener('click', (e) => {
+         if (e.target === document.getElementById('productModal')) {
+             closeProductModal();
+         }
+     });
+     
+     document.getElementById('upgradeModal').addEventListener('click', (e) => {
+         if (e.target === document.getElementById('upgradeModal')) {
+             closeUpgradeModal();
+         }
+     });
+     
+     document.getElementById('bannerImage').addEventListener('input', function() {
+         const preview = document.getElementById('bannerPreview');
+         if (this.value) {
+             preview.style.backgroundImage = `url('${this.value}')`;
+             preview.style.display = 'block';
+         } else {
+             preview.style.display = 'none';
+         }
+     });
+     
+     document.getElementById('productForm').addEventListener('submit', async (e) => {
+         e.preventDefault();
+         const formData = new FormData(e.target);
+         await saveOtherProduct(formData);
+     });
+     
+     const upgradeOptions = document.querySelectorAll('#upgradePackageSelector .package-option');
+     upgradeOptions.forEach(option => {
+         option.addEventListener('click', () => {
+             upgradeOptions.forEach(opt => opt.classList.remove('selected'));
+             option.classList.add('selected');
+         });
+     });
+     
+     const usernameInput = document.getElementById('usernameInput');
+     if (usernameInput) {
+         let timeout;
+         usernameInput.addEventListener('input', () => {
+             clearTimeout(timeout);
+             const username = usernameInput.value.trim();
+             if (username.length >= 3) {
+                 timeout = setTimeout(() => checkUsername(username), 500);
+             }
+         });
+     }
+ });
+ 
+ async function checkUsername(username) {
+     try {
+         const response = await axios.get(`/api/check-username/${username}`);
+         if (!response.data.available) {
+             showToast(`Username "${username}" is already taken`, 'warning');
+         }
+     } catch (error) {}
+ }
+</script>
+</body>
+</html>
