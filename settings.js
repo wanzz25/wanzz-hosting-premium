@@ -5,21 +5,21 @@
 
 module.exports = {
   // App Config
-  STORE_NAME: "Alip Cloud",
-  CONTACT_WHATSAPP: "https://wa.me/6281249703469",
+  STORE_NAME: "Wanzz Hosting",
+  CONTACT_WHATSAPP: "https://wa.me/6288980271829",
 
   // Links Configuration
   CHANNEL_LINK: "https://whatsapp.com/channel/0029VbBzq5JH5JLtaYovYB0b",
   BOT_GROUP_LINK: "https://chat.whatsapp.com/ChrOPk4QYToJiFTAA0V7bk?mode=gi_t",
   STORE_GROUP_LINK: "https://chat.whatsapp.com/ChrOPk4QYToJiFTAA0V7bk?mode=gi_t",
-  CONTACT_ADMIN: "https://wa.me/6281249703469",
+  CONTACT_ADMIN: "https://wa.me/6288980271829",
 
   // Website Assets
-  WEBSITE_LOGO: "https://img2.pixhost.to/images/5707/694518103_alip-1770904754646.jpg",
-  WEBSITE_BANNER: "https://img2.pixhost.to/images/5830/696633729_media.jpg",
+  WEBSITE_LOGO: "https://c.top4top.io/p_3748vtfd11.jpg",
+  WEBSITE_BANNER: "https://h.top4top.io/p_3748643pq1.jpg",
 
   // Admin password 
-  ADMIN_PASSWORD: "Admin password",
+  ADMIN_PASSWORD: "wanz",
 
   // Kalo mau whitlist ip bersihin aja // nya
 
