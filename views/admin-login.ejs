@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= storeName %> | Admin Console</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-main: #000024;
+      --bg-secondary: #1a1a20;
+      --bg-card: rgba(30, 30, 38, 0.6);
+      --primary: #6366f1;
+      --primary-glow: rgba(99, 102, 241, 0.4);
+      --accent: #38bdf8;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #64748b;
+      --border-color: rgba(59, 130, 246, 0.25);
+      --glass-effect: blur(20px);
+      --radius-std: 16px;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-heading: 'Space Grotesk', sans-serif;
+      --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+      outline: none; 
+      -webkit-tap-highlight-color: transparent; 
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 60px 60px, 60px 60px;
+      background-attachment: fixed;
+      padding: 20px;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 1;
+      animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .login-card {
+      background: linear-gradient(145deg, rgba(30, 30, 38, 0.9), rgba(20, 20, 25, 0.9));
+      border: 2px solid rgba(59, 130, 246, 0.3);
+      border-radius: 24px;
+      padding: 48px 40px;
+      position: relative;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.8);
+      overflow: hidden;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      padding: 2px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), transparent, rgba(56, 189, 248, 0.3));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .login-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      animation: gradientFlow 3s linear infinite;
+      background-size: 200% 100%;
+    }
+
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(56, 189, 248, 0.1));
+      border: 2px solid rgba(99, 102, 241, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      color: var(--primary);
+      font-size: 2rem;
+      box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.3); }
+      50% { box-shadow: 0 0 60px rgba(99, 102, 241, 0.5); }
+    }
+
+    .header h1 {
+      font-family: var(--font-heading);
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      background: linear-gradient(180deg, #fff 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-family: var(--font-mono);
+      letter-spacing: 1px;
+    }
+
+    .form-group {
+      margin-bottom: 28px;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 18px 20px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      transition: var(--transition);
+      letter-spacing: 2px;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      background: rgba(0, 0, 0, 0.6);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: #475569;
+      letter-spacing: 0;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 18px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--primary), #4f46e5);
+      color: white;
+      font-weight: 600;
+      border: none;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+      font-family: var(--font-heading);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 40px -10px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-submit::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+
+    .btn-submit:hover::before {
+      left: 100%;
+    }
+
+    .error-box {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--danger);
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    @keyframes shake {
+      10%, 90% { transform: translateX(-1px); }
+      20%, 80% { transform: translateX(2px); }
+      30%, 50%, 70% { transform: translateX(-2px); }
+      40%, 60% { transform: translateX(2px); }
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 32px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: var(--transition);
+      font-family: var(--font-mono);
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .back-link:hover {
+      color: white;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--primary), transparent);
+      animation: scan 3s linear infinite;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    @keyframes scan {
+      0% { top: 0%; opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .floating-particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--primary);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float 15s infinite linear;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(100vh) translateX(0); }
+      100% { transform: translateY(-100px) translateX(100px); }
+    }
+
+    .brand-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: #334155;
+      letter-spacing: 2px;
+    }
+
+    @media (max-width: 768px) {
+      .login-card {
+        padding: 32px 24px;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .header-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="floating-particles" id="particles"></div>
+  
+  <div class="login-container">
+    <div class="scan-line"></div>
+    
+    <div class="login-card">
+      <div class="header">
+        <div class="header-icon">
+          <i class="fas fa-terminal"></i>
+        </div>
+        <h1>Admin Console</h1>
+        <p>SECURE ACCESS TERMINAL // <%= storeName %></p>
+      </div>
+
+      <% if (locals.error) { %>
+        <div class="error-box">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span><%= error %></span>
+        </div>
+      <% } %>
+
+      <form method="POST" action="/admin/login">
+        <div class="form-group">
+          <label class="form-label">Access Key</label>
+          <input type="password" name="password" class="form-input" placeholder="ENTER ADMIN PASSWORD" required autofocus>
+        </div>
+        
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-unlock-alt" style="margin-right: 8px;"></i> Authenticate
+        </button>
+      </form>
+
+      <a href="/" class="back-link">
+        <i class="fas fa-chevron-left" style="margin-right: 8px;"></i> Return to Store
+      </a>
+    </div>
+    
+    <div class="brand-footer">
+      <%= storeName %> ADMIN PANEL v2.0
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const particlesContainer = document.getElementById('particles');
+      const particleCount = 20;
+      
+      for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.animationDelay = `${Math.random() * 15}s`;
+        particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+        particle.style.opacity = `${0.1 + Math.random() * 0.2}`;
+        particle.style.width = particle.style.height = `${2 + Math.random() * 3}px`;
+        particle.style.background = Math.random() > 0.5 ? 'var(--primary)' : 'var(--accent)';
+        particlesContainer.appendChild(particle);
+      }
+      
+      const input = document.querySelector('.form-input');
+      input.addEventListener('focus', function() {
+        this.parentElement.classList.add('focused');
+      });
+      
+      input.addEventListener('blur', function() {
+        this.parentElement.classList.remove('focused');
+      });
+    });
+  </script>
+</body>
+</html>
